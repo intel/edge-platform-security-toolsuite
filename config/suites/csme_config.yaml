@@ -1,0 +1,69 @@
+# ---------------------------------------------------------------------------
+# CSME Suite Configuration
+# Shared by:
+#   IEC62443-4-2-TC_CSME_UPID-FUNC             (tests/csme/)
+#   IEC62443-4-2-TC_CSME_UPID-FUNC-SUT          (tests/csme/)
+#   IEC62443-4-2_Windows-TC_CSME_UPID-FUNC-SUT  (tests/csme/)
+#   IEC62443-4-2-TC_RPMC-FUNC                   (tests/rpmc/)
+#   IEC62443-4-2-TC_RPMC-FUNC-SUT               (tests/rpmc/)
+#   IEC62443-4-2-TC_Secure_debug-FUNC           (tests/secure_debug/)
+#
+# All tests use the MEInfo tool from the same CSME tool package — the Linux
+# MEInfo binary for NUC/SSH and Linux SUT-local variants, or Meinfo.exe for
+# the Windows SUT-local variant.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# MEInfo tool paths — one standardized key per test variant
+# ---------------------------------------------------------------------------
+#   nuc_meinfo_path          SSH auto-transfer variants (*_func.py): path to MEInfo
+#                            on THIS NUC; auto-uploaded to sut_meinfo_dir on the SUT.
+#   sut_meinfo_dir           SSH auto-transfer variants: destination dir on the SUT.
+#   sut_meinfo_path_linux    Linux SUT-local variants (*_sut_func.py): path to MEInfo
+#                            on the Linux SUT.
+#   sut_meinfo_path_windows  Windows SUT-local variants (*_sut_wins_func.py): path to
+#                            MEInfo.exe on the Windows SUT.
+# Relative sut_meinfo_path_* values are resolved from the repo root; the defaults
+# match where `python deploy/tools/deploy_tools.py` stages the tools (./Tools/).
+# ---------------------------------------------------------------------------
+
+# NUC-side MEInfo binary (from CSME tool package), auto-uploaded over SSH.
+# Supported names: MEInfo, MEInfo-11, MEInfoLinux, etc.
+# Internal NUC-driven tests only -- set it on the NUC, e.g.
+#   "C:/tools/CSME/System_Tools/MEInfo/Linux64/MEInfo"
+nuc_meinfo_path: ""
+
+# Directory on the SUT where MEInfo will be uploaded.
+sut_meinfo_dir: "/home/user"
+
+# Linux SUT-local: MEInfo binary (absolute path, or relative to the repo root).
+sut_meinfo_path_linux: "Tools/MEInfo"
+
+# Windows SUT-local: MEInfo.exe (absolute path, or relative to the repo root).
+sut_meinfo_path_windows: "Tools/MEInfo.exe"
+
+# ---------------------------------------------------------------------------
+# CSME UPID expected values (IEC62443-4-2-TC_CSME_UPID-FUNC)
+# ---------------------------------------------------------------------------
+# Fill these in BEFORE running the test.
+# Source: MFIT tool -> Decompose image -> Bootguard 5 internal release default
+#         IFWI -> Intel(R) Unique Platform ID section.
+# Leave as "" if the value is "Not set" (0x00). Use lowercase hex, e.g. "0x12ab"
+expected_upid_oem_id:            "0x00"
+expected_upid_refurbish_counter: "0x00"
+
+# ---------------------------------------------------------------------------
+# RPMC expected CSME AR field values (IEC62443-4-2-TC_RPMC-FUNC / -FUNC-SUT)
+# ---------------------------------------------------------------------------
+# Source: MEInfo -FEAT "CSME AR Services" and "BIOS AR Services" output.
+expected_cse_ar_mode:    "RPMC"
+expected_cse_ar_status:  "OK"
+expected_bios_ar_mode:   "RPMC"
+expected_bios_ar_status: "OK"
+
+# ---------------------------------------------------------------------------
+# Secure Debug expected values (IEC62443-4-2-TC_Secure_debug-FUNC)
+# ---------------------------------------------------------------------------
+# Source: MEInfo -FEAT "Debug Information" -> DFx Policy field.
+# Value must match exactly (case-insensitive comparison).
+expected_dfx_policy: "Unprivileged Public Debug Enabled Security Locked"

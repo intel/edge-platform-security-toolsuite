@@ -1,0 +1,23 @@
+# ===========================================================================
+# BIOS Resiliency / Recovery — Suite Configuration
+# Test: tests/bios_resiliency/test_ec62443_bios_resiliency_recovery_sut_func.py
+# ===========================================================================
+
+# Maximum seconds to wait at the Step 5.0 manual gate before timing out.
+# 900 = 15 minutes. 0 = no gate timeout (pytest.ini `timeout` still caps the whole test).
+manual_gate_timeout_secs: 900
+
+# Step 1.0: the test runs only on an Intel RVP (its EC performs the resiliency / recovery).
+# Regular expressions (case-insensitive) matched against DMI board_vendor, board_name and
+# product_name (cat /sys/class/dmi/id/board_name). "RVP" is a placeholder default --
+# add your RVP's board name if it does not contain "RVP".
+rvp_board_patterns:
+  - "RVP"
+
+# Step 2.0 / 6.3: where to look for the Obb.bin resiliency backup. /boot/efi is root-only on
+# Ubuntu; the test then uses the exact sudo rule installed by deploy/setup/setup_sut.sh, which
+# covers /boot/efi only.
+obb_search_root: "/boot/efi"
+
+# Step 4.0: seconds between the operator's 'yes' and the power-off.
+poweroff_delay_secs: 20

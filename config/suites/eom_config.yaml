@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# EOM (End of Manufacturing) Test Configuration
+# IEC62443-4-2-TC_EOM-FUNC
+# ---------------------------------------------------------------------------
+# IMPORTANT: Ensure HW Binding is DISABLED in IFWI before running.
+# Running EOM with HW Binding enabled will permanently burn fuses.
+
+# ---------------------------------------------------------------------------
+# Tools — local (NUC) source paths
+# ---------------------------------------------------------------------------
+# Full paths to Fpt.efi and MEInfo.efi on this NUC.
+local_fpt_tool:    "C:/tools/eom/Fpt.efi"
+local_meinfo_efi:  "C:/tools/eom/MEInfo.efi"
+
+# ---------------------------------------------------------------------------
+# UEFI shell tool directory
+# ---------------------------------------------------------------------------
+# Defaults from test_config.yaml:  uefi.tool_dir = "EFI",  uefi.efi_mount = "/boot/efi"
+# Override here only if your SUT uses a non-standard EFI layout:
+# uefi_tool_dir: "EFI"
+# sut_efi_mount: "/boot/efi"
+
+# ---------------------------------------------------------------------------
+# Expected End Of Manufacturing field values
+# ---------------------------------------------------------------------------
+# Source: MEInfo.efi -FEAT "End Of Manufacturing" output
+expected_nvar_config_state:    "Locked"
+expected_flash_protection_mode: "Protected"
+
+# ---------------------------------------------------------------------------
+# Timing
+# ---------------------------------------------------------------------------
+# Seconds to wait for UEFI shell after each reboot
+boot_timeout: 180
+
+# ---------------------------------------------------------------------------
+# Tools — SUT EFI partition names  [SUT variant: test_ec62443_eom_sut_func.py]
+# ---------------------------------------------------------------------------
+# Filenames of Fpt.efi and MEInfo.efi already copied to the SUT EFI partition.
+# Pre-stage with:
+#   sudo cp Fpt.efi    /boot/efi/EFI/
+#   sudo cp MEInfo.efi /boot/efi/EFI/
+fpt_efi_name:    "Fpt.efi"
+meinfo_efi_name: "MEInfo.efi"
+
+

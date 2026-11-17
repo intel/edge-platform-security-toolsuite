@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+ 
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+ 
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+ 
+# Config (contains credentials — never commit, maintain locally per user)
+config/test_config.yaml
+
+# Logs and reports
+logs/
+*.log
+report.html
+report.xml
+.pytest_cache/
+.coverage
+htmlcov/
+
+# deploy_tools.py working folders (licensed/vendor binaries — never commit)
+/Downloads/
+/Tools/
+ 
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+ 
+# OS
+Thumbs.db
+
+# Test artifacts written to the working folder by bios_scripts/
+# checkquote.sh (TPM EK/AK, quote and PCR files)
+ecc.ak
+ecc.ak.pem
+ecc.ak.tpmt
+ecc.ak.tss
+ecc.ek
+ek.ctx
+ek.pub
+nonce.bin
+quote.bin
+quote.msg
+quote.pcr
+quote.pcrs
+quote.sig
+# run_aesni_test.py (AES DRNG key/IV and encrypt/decrypt files)
+aes_drng_keyiv.env
+cipher.bin
+plain.bin
+plain_out.bin

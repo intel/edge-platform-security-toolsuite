@@ -1,0 +1,25 @@
+# ---------------------------------------------------------------------------
+# PAVP (Protected Audio Video Path) Test Configuration
+# IEC62443-4-2-TC_PAVP-FUNC
+# ---------------------------------------------------------------------------
+
+# BIOS menu navigation path for the operator:
+# Intel Advanced Menu -> System Agent (SA) Configuration
+#   -> Graphics Configuration -> PAVP -> Enabled
+# The expected value lives in deploy/bios_knobs/bios_knobs.yaml (pavp: "PAVP Enable").
+
+# ---------------------------------------------------------------------------
+# SUT-only variant, Windows OS (test_ec62443_pavp_sut_wins_func.py)
+# Reads PAVP back (PlayReady hardware DRM, AMISCE on AMI BIOS, or the pre-flight);
+# only otherwise asks for BIOS Setup (one reboot + Task Scheduler auto-resume).
+# ---------------------------------------------------------------------------
+
+# Optional: directory for the phase state (pavp_state.json) across the manual BIOS reboot.
+# Default: <repo>/logs/sut_state on this SUT's disk.
+# win_state_dir: "C:/path/to/state"
+
+# Optional: full path to a specific python.exe for the Task Scheduler resume
+# task. Leave unset to default to sys.executable (the interpreter currently
+# running the test) -- safer than a bare "python", since Task Scheduler's
+# ONLOGON/elevated context can resolve PATH to a different install.
+# win_python_path: "C:/path/to/python.exe"

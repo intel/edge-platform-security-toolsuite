@@ -1,0 +1,136 @@
+# ---------------------------------------------------------------------------
+# BIOS knobs per test marker for deploy/bios_knobs/configure_bios_knobs_linux.py and
+# deploy/bios_knobs/configure_bios_knobs_windows.py (AMI AMISCE pre-flight runbooks)
+# ---------------------------------------------------------------------------
+# Run:  sudo python3 deploy/bios_knobs/configure_bios_knobs_linux.py --marker <marker> [--variant <name>]
+#       sudo python3 deploy/bios_knobs/configure_bios_knobs_linux.py --marker <m1> --marker <m2>:<variant>  (merged)
+#       sudo python3 deploy/bios_knobs/configure_bios_knobs_linux.py list
+#       python deploy\bios_knobs\configure_bios_knobs_windows.py --marker <marker> [--variant <name>]
+#
+# test_runner.py works out the markers from the selected tests (pre-flight before
+# every run, see core/test_selection.bios_knob_spec). On an AMI BIOS it runs these
+# runbooks by itself; on any other BIOS it prints the knobs with their menu_paths
+# (bottom of this file) and reboots into BIOS Setup.
+#
+# Each marker (pytest.ini marker name) is one of:
+#   <marker>: ~                      no BIOS knob configuration needed (NA)
+#   <marker>:
+#     knobs:                         knobs to set before running the tests
+#       "<Setup Question>": <option>
+#   <marker>:
+#     variants:                      pick one with --variant (prompted if omitted)
+#       <name>:
+#         description: <text>
+#         knobs: {...}
+#
+# Optional on a marker or a variant:
+#   verify_only: true                only read and check the values; nothing is imported
+#   verify_knobs:                    read-only checks, never imported (e.g. values fixed by
+#     "<Setup Question>": <option>  the flashed IFWI) -- mismatch fails with a flash-IFWI hint
+#
+# Knob name = the "Setup Question" text in the AMISCE export, matched
+# case-insensitively. Option = the label after "[xx]" in its Options list,
+# e.g. Enabled for
+#     Options =[00]Disabled
+#              *[01]Enabled
+# Quote options YAML would read as true/false (yes, no, on, off).
+# ---------------------------------------------------------------------------
+
+markers:
+  tme:
+    knobs:
+      # TME is grayed out (import ignored) unless VT-d is Enabled; VT-d itself is
+      # grayed out while 'X2APIC Enable' is Enabled.
+      "VT-d": Enabled
+      "Total Memory Encryption": Enabled
+
+  aesni: ~
+
+  txt:
+    # In-Band ECC starts Disabled: the test reads MemTotal, then the operator enables it in BIOS
+    # Setup (Step 4.1) and the test checks MemTotal dropped. TME is left out automatically on
+    # non-vPro CPUs. TXT needs a full power cycle to take effect (BIOS help).
+    knobs:
+      "VT-d": Enabled
+      "Total Memory Encryption": Enabled
+      "Intel Trusted Execution Technology": Enabled
+      "Alias Check Request": Enabled
+      "In-Band ECC Support": Disabled
+
+  measured_boot:
+    variants:
+      ftpm_ptt:
+        description: "fTPM / PTT tests"
+        verify_knobs:
+          "TPM Device Selection": PTT
+      dtpm:
+        description: "dTPM tests"
+        verify_knobs:
+          "TPM Device Selection": dTPM
+
+  firmware: ~
+  csme: ~
+  pavp:
+    knobs:
+      "PAVP Enable": Enabled
+  rpmc: ~
+  secure_debug: ~
+  eom: ~
+
+  virtualization:
+    knobs:
+      "VT-d": Enabled
+      "Intel (VMX) Virtualization Technology": Enabled
+      "Low Power S0 Idle Capability": Disabled
+
+  sha_extension: ~
+  bios_resiliency: ~
+  hlat: ~
+  cet: ~
+  hdcp: ~
+
+  # IFWI groups (test_runner.py key 'I') - one run sets everything the group needs.
+  # "TPM Device Selection" is the PTT<->dTPM hardware mux (doc/TEST_COVERAGE.md
+  # groups A/B): it is fixed by the flashed IFWI (RPSF_SEP5 = PTT-only,
+  # RPSF_SED5 = dTPM-only), not a value AMISCE import can change, so it is
+  # only ever read and checked here -- never set.
+  # The Linux tests other than fTPM/dTPM run on either IFWI, so ifwi_sed5 sets their knobs too.
+  ifwi_sep5:
+    knobs:
+      "VT-d": Enabled
+      "Total Memory Encryption": Enabled
+      "Intel (VMX) Virtualization Technology": Enabled
+      "Low Power S0 Idle Capability": Disabled
+      "PAVP Enable": Enabled
+    verify_knobs:
+      "TPM Device Selection": PTT
+
+  ifwi_sed5:
+    knobs:
+      "VT-d": Enabled
+      "Total Memory Encryption": Enabled
+      "Intel (VMX) Virtualization Technology": Enabled
+      "Low Power S0 Idle Capability": Disabled
+    verify_knobs:
+      "TPM Device Selection": dTPM
+
+  ifwi_resiliency: ~
+
+# ---------------------------------------------------------------------------
+# BIOS Setup menu path per knob ("Setup Question" -> path, matched
+# case-insensitively). An AMISCE export has no menu path, so these are written
+# down by hand from the tests' docstrings (Intel reference BIOS menus; an OEM
+# AMI BIOS may differ). test_runner.py prints them when a knob has to be set by
+# hand in BIOS Setup (non-AMI BIOS). A knob without an entry prints
+# "(menu path not recorded -- search BIOS Setup for the name)".
+# ---------------------------------------------------------------------------
+menu_paths:
+  "Total Memory Encryption": "Intel Advanced Menu → CPU Configuration"
+  "Intel (VMX) Virtualization Technology": "Intel Advanced Menu → CPU Configuration"
+  "Intel Trusted Execution Technology": "Intel Advanced Menu → CPU Configuration"
+  "Alias Check Request": "Intel Advanced Menu → CPU Configuration"
+  "VT-d": "Intel Advanced Menu → System Agent (SA) Configuration → VT-d Setup Menu"
+  "PAVP Enable": "Intel Advanced Menu → System Agent (SA) Configuration → Graphics Configuration (PAVP)"
+  "Low Power S0 Idle Capability": "Intel Advanced Menu → ACPI settings"
+  "In-Band ECC Support": "Intel Advanced Menu → Memory Configuration"
+  "TPM Device Selection": "Platform Information → Current TPM Location (fixed by the flashed IFWI)"

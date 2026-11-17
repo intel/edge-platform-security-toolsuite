@@ -1,0 +1,45 @@
+# ---------------------------------------------------------------------------
+# TME (Total Memory Encryption) Test Configuration
+# Tests:
+#   tests/tme/test_ec62443_tme_sut_func.py            (Linux SUT-local)
+#   tests/tme/test_ec62443_tme_sut_wins_func.py       (Windows SUT-local)
+#   internal_nuc/tests/tme/test_ec62443_tme_func.py   (Linux, NUC/SSH)
+#
+# AES-NI settings live in aesni_config.yaml.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# IEC62443-4-2-TC_TME-FUNC settings
+# ---------------------------------------------------------------------------
+# MSR 0x981 = IA32_TME_CAPABILITY — reports what TME hardware supports.
+# Bit[2] = 1 means AES-XTS-256 encryption algorithm is supported.
+msr_tme_capability_address: "0x981"
+expected_tme_capability_hex: "f440000004"
+# MSR 0x982 = IA32_TME_ACTIVATE — what the BIOS turned on. The Linux SUT test
+# requires bit[0] (lock) = 1 and bit[1] (TME enable) = 1; bit[31] (bypass) = 1 is a warning.
+msr_tme_activate_address: "0x982"
+
+# Seconds to wait for the SUT to be SSH-reachable after a BIOS save+reset
+# (used by the NUC/SSH variant of the TME test).
+ssh_post_boot_timeout: 300
+
+# ---------------------------------------------------------------------------
+# IEC62443-4-2_Windows-TC_TME-FUNC-SUT settings (Windows SUT-local)
+# VT-d and TME are read back (ACPI DMAR, tme_check.py MSR 0x982 / AMISCE /
+# pre-flight); expected values live in deploy/bios_knobs/bios_knobs.yaml (tme).
+# Only when TME cannot be read does the test ask for BIOS Setup (one reboot +
+# Task Scheduler auto-resume).
+# ---------------------------------------------------------------------------
+# BIOS menu navigation:
+#   TME : Intel Advanced Menu -> CPU Configuration -> Total Memory Encryption
+#   VT-d: Intel Advanced Menu -> SA Configuration -> VT-d Setup Menu -> VT-d
+
+# Optional: directory for the phase state (tme_state.json) across the BIOS Setup reboot.
+# Default: <repo>/logs/sut_state on this SUT's disk.
+# win_state_dir: "C:/path/to/state"
+
+# Optional: full path to a specific python.exe for the Task Scheduler resume
+# task. Leave unset to default to sys.executable (the interpreter currently
+# running the test) -- safer than a bare "python", since Task Scheduler's
+# ONLOGON/elevated context can resolve PATH to a different install.
+# win_python_path: "C:/path/to/python.exe"

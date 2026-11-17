@@ -1,0 +1,47 @@
+# ---------------------------------------------------------------------------
+# Measured Boot Test Configuration
+# Tests (tests/measured_boot/):
+#   test_ec62443_dtpm_func.py               test_ec62443_dtpm_sut_func.py
+#   test_ec62443_ftpm_ptt_func.py            test_ec62443_ftpm_ptt_sut_func.py
+#   test_ec62443_dtpm_sut_wins_func.py         test_ec62443_ftpm_ptt_sut_wins_func.py
+#
+# Single suite config shared by all measured-boot variants (Linux NUC/SSH,
+# Linux SUT-local, and Windows SUT-local).
+# ---------------------------------------------------------------------------
+
+# Number of reboot iterations for PCR stability check
+reboot_iterations: 5
+
+# ---------------------------------------------------------------------------
+# NUC-variant script paths (relative to project root)
+# ---------------------------------------------------------------------------
+thm_helper_script:     "bios_scripts/helpers.sh"
+thm_checkquote_script: "bios_scripts/checkquote.sh"
+
+sut_tpm_module_path: "/usr/lib/modules"
+
+# TCTI for tpm2 tools
+sut_tpm_tcti:       "device:/dev/tpmrm0"
+sut_tpm_tcti_dtpm:  "device:/dev/tpm0"
+
+# ---------------------------------------------------------------------------
+# SUT-only variant settings (Linux SUT-local)
+# ---------------------------------------------------------------------------
+sut_dtpm_device:       "/dev/tpmrm0"
+sut_dtpm_tcti:         "device:/dev/tpmrm0"
+# Run straight from this checkout (relative = repo-relative); no copy step needed.
+sut_checkquote_script: "bios_scripts/checkquote.sh"
+sut_helper_script:     "bios_scripts/helpers.sh"
+
+# ---------------------------------------------------------------------------
+# Windows SUT-local variant settings
+# ---------------------------------------------------------------------------
+# Optional: directory for the PCR snapshots (state JSON) between reboot phases.
+# Default: <repo>/logs/sut_state on this SUT's disk.
+# win_state_dir: "C:/path/to/state"
+
+# Optional: full path to a specific python.exe for the Task Scheduler resume
+# task. Leave unset to default to sys.executable (the interpreter currently
+# running the test) -- safer than a bare "python", since Task Scheduler's
+# ONLOGON/elevated context can resolve PATH to a different install.
+# win_python_path: "C:/path/to/python.exe"

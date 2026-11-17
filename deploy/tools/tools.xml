@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tools>
+    <!-- source_folder: where to look for the tool files -->
+    <!-- efi_mount: SUT EFI System Partition mount point (used only when copying tools -->
+    <!-- onto the SUT EFI partition; see deploy_tools.py's CLI help) -->
+    <config>
+        <source_folder>./Downloads</source_folder>
+        <efi_mount>/boot/efi</efi_mount>
+    </config>
+
+    <!-- Download links: see deploy/tools/download_links.xml; edit that file (not this one) -->
+    <!-- when a link changes; tools below reference its <component> names by name. -->
+
+    <!-- Each tool entry specifies the filename or folder name and destination -->
+    <!-- type: "file" or "folder" (default: file) -->
+    <!-- os: "windows", "linux", or "both" (default: both) -->
+    <!-- match: "exact", "version", or "prefix" (default: version) -->
+    <!--   exact   = only match the exact name -->
+    <!--   version = also match name with a version string appended after a separator -->
+    <!--             (e.g. VtInfo.efi matches VtInfo_v1.1.83.efi) -->
+    <!--   prefix  = also match name with ANY text appended after the stem, no separator -->
+    <!--             required (e.g. MEInfo.exe matches MEInfoWin64.exe); use when the -->
+    <!--             packaged name is known to vary/not follow the "version" pattern -->
+    <!--   any_ext = match ANY filename sharing the same extension, ignoring the stem -->
+    <!--             entirely; use for tools with an unpredictable vendor-provided name -->
+    <!--             (e.g. an Intel-provided .cap file with no fixed base name) -->
+    <!-- efi_destination: OPTIONAL. Path relative to <efi_mount> to also copy this tool -->
+    <!--   to when copying onto the SUT EFI partition (e.g. "EFI" -> <efi_mount>/EFI/<filename>). -->
+    <!--   Only set this for tools that are actually run from the UEFI shell -->
+    <!--   (UEFI Shell can only read FAT volumes; see doc/DEPENDENCIES.md). -->
+    <!-- optional_reason: OPTIONAL. Marks a tool that not every SUT needs; the text is the -->
+    <!--   reason shown when it is not provided. A missing optional tool is reported as -->
+    <!--   SKIPPED (not MISSING/FAIL) and does not make the run exit non-zero. -->
+    <!-- Auto-download: a tool whose component link has auto_download="true" in -->
+    <!--   download_links.xml is downloaded into source_folder when it is missing, then staged. -->
+    <tool>
+        <!-- Sysinternals Coreinfo64.exe for the Windows AES-NI test (aesni_config.yaml
+             coreinfo_exe_path, default Tools/Coreinfo64.exe). Auto-downloaded as
+             Coreinfo.zip; only the 64-bit x86 binary is staged (not Coreinfo.exe or
+             the ARM64 Coreinfo64a.exe). -->
+        <filename>Coreinfo64.exe</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>windows</os>
+        <match>exact</match>
+        <component>Coreinfo</component>
+    </tool>
+    <tool>
+        <filename>VTInfo.efi</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>both</os>
+        <match>version</match>
+        <efi_destination>EFI</efi_destination>
+        <component>VTInfo</component>
+    </tool>
+    <tool>
+        <!-- Companion helper file VTInfo.efi invokes at runtime; from the same
+             VtInfo package, must land in the same EFI folder as VTInfo.efi above
+             (see doc/DEPENDENCIES.md / virtualization_config.yaml). match="prefix"
+             in case the packaged name carries a version/arch suffix. -->
+        <filename>vt-tests</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>both</os>
+        <match>prefix</match>
+        <efi_destination>EFI</efi_destination>
+        <component>VTInfo</component>
+    </tool>
+    <tool>
+        <!-- Linux OS-level MEInfo binary (ELF, no extension), from the package's Linux
+             folder; used via SSH by the CSME UPID / RPMC / Secure Debug tests. NOT the
+             same file as the UEFI "MEInfo.efi" app used by the EOM tests below. -->
+        <filename>MEInfo</filename>
+        <destination>./Tools</destination>
+        <type>file</type>
+        <os>linux</os>
+        <match>exact</match>
+        <component>CSMEKits</component>
+    </tool>
+    <tool>
+        <!-- Windows OS-level MEInfo binary, from the package's Windows folder;
+             Windows-SUT-local counterpart to the Linux "MEInfo" binary above.
+             match="prefix" so this still matches even if the packaged name changes
+             between MEInfo.exe / MEInfoWin64.exe / similar; always staged as MEInfo.exe. -->
+        <filename>MEInfo.exe</filename>
+        <destination>./Tools</destination>
+        <type>file</type>
+        <os>windows</os>
+        <match>prefix</match>
+        <component>CSMEKits</component>
+    </tool>
+    <tool>
+        <!-- UEFI-shell MEInfo app used by the EOM tests (config: local_meinfo_efi /
+             meinfo_efi_name). NOT the same file as the OS-level "MEInfo" ELF binary above. -->
+        <filename>MEInfo.efi</filename>
+        <destination>./Tools</destination>
+        <type>file</type>
+        <os>both</os>
+        <match>version</match>
+        <efi_destination>EFI</efi_destination>
+        <component>CSMEKits</component>
+    </tool>
+	<tool>
+        <!-- UEFI-shell FPT app used by the EOM tests to close manufacturing mode
+             (config: local_fpt_tool / fpt_efi_name). -->
+        <filename>Fpt.efi</filename>
+        <destination>./Tools</destination>
+        <type>file</type>
+        <os>both</os>
+        <match>version</match>
+        <efi_destination>EFI</efi_destination>
+        <component>CSMEKits</component>
+    </tool>
+    <tool>
+        <!-- BIOS FW capsule (.cap) required by the firmware capsule-update tests. Cannot
+             be auto-downloaded; must be requested from your Intel representative and is
+             valid only for genuine Intel boards (see BIOSCapsule component in
+             download_links.xml). match="any_ext" since the vendor-provided filename has
+             no fixed base name; always staged/copied as BIOS_release.cap. Linux only:
+             the SUT-only capsule-update test copies it onto the EFI partition. -->
+        <filename>BIOS_release.cap</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>linux</os>
+        <match>any_ext</match>
+        <efi_destination>EFI</efi_destination>
+        <component>BIOSCapsule</component>
+    </tool>
+    <tool>
+        <!-- UEFI-shell capsule update app required by the firmware capsule-update tests
+             (SUT-only variant). Cannot be auto-downloaded; must be compiled from EDK2
+             source (see CapsuleApp component in download_links.xml). Linux only: the
+             SUT-only capsule-update test stages it from Downloads/ into Tools/ and the
+             EFI partition. -->
+        <filename>CapsuleApp.efi</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>linux</os>
+        <match>exact</match>
+        <efi_destination>EFI</efi_destination>
+        <component>CapsuleApp</component>
+    </tool>
+    <tool>
+        <filename>getsec64.efi</filename>
+        <destination>./Tools</destination>
+        <type>file</type>
+        <os>both</os>
+        <match>version</match>
+        <efi_destination>EFI</efi_destination>
+        <component>TXTProvKits</component>
+    </tool>
+    <tool>
+        <filename>Tpm2ProvFilesCBnT</filename>
+        <destination>./Tools</destination>
+        <type>folder</type>
+        <os>both</os>
+        <match>version</match>
+        <efi_destination>EFI</efi_destination>
+        <component>TXTProvKits</component>
+    </tool>
+    <tool>
+        <filename>PTL_SINIT.bin</filename>
+        <destination>./Tools</destination>
+        <type>file</type>
+        <os>both</os>
+        <match>version</match>
+        <efi_destination>EFI</efi_destination>
+        <component>PTL_ACM</component>
+    </tool>
+    <tool>
+        <!-- AMI AMISCE UEFI tool used by deploy/bios_knobs/configure_bios_knobs_linux.py (pre-flight
+             BIOS knob configuration) to export/import BIOS knob values. Only needed
+             when the SUT runs an AMI Aptio BIOS (skip it with [S] otherwise). Runs
+             standalone: SCEEFI64.cif / SCEEFI64.sbom.yaml in the AMISCE package
+             are BIOS build-tree metadata, not runtime files, so they are not
+             staged. Linux only: copied into EFI/ubuntu on the SUT. -->
+        <filename>SceEfi64.efi</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>linux</os>
+        <match>exact</match>
+        <efi_destination>EFI/ubuntu</efi_destination>
+        <component>AMISCE_Linux</component>
+        <optional_reason>AMISCE is only used with an AMI Aptio BIOS</optional_reason>
+    </tool>
+    <tool>
+        <!-- AMI AMISCE Windows tool used by deploy/bios_knobs/configure_bios_knobs_windows.py.
+             Only needed when the SUT runs an AMI Aptio BIOS (skip it with [S] otherwise).
+             Runs in Windows; needs amigendrv64.sys (next entry) in the same folder. -->
+        <filename>SCEWIN_64.exe</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>windows</os>
+        <match>exact</match>
+        <component>AMISCE_Windows</component>
+        <optional_reason>AMISCE is only used with an AMI Aptio BIOS</optional_reason>
+    </tool>
+    <tool>
+        <!-- Kernel driver SCEWIN_64.exe loads at run time; must sit next to it. -->
+        <filename>amigendrv64.sys</filename>
+        <destination>./Tools/</destination>
+        <type>file</type>
+        <os>windows</os>
+        <match>exact</match>
+        <component>AMISCE_Windows</component>
+        <optional_reason>AMISCE is only used with an AMI Aptio BIOS</optional_reason>
+    </tool>
+</tools>

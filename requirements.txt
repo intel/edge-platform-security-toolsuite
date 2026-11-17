@@ -1,0 +1,9 @@
+# BIOS Security Automation Framework - Requirements (customer-facing tests/ and deploy/)
+# Only what the code uses, pinned to the versions it was tested with (~= : same major, newer minor OK).
+# The internal NUC-driven tests also need internal_nuc/requirements.txt (paramiko, pyserial).
+
+pytest~=9.2
+pytest-html~=4.2        # HTML report written by test_runner.py
+pytest-timeout~=2.4     # @pytest.mark.timeout in the Windows reboot-gate tests
+pyyaml~=6.0             # config/
+py7zr~=1.1              # .7z vendor archives (e.g. AMISCE SceEfi.7z) in deploy/tools/deploy_tools.py

@@ -1,0 +1,17 @@
+# ===========================================================================
+# HDCP (High-bandwidth Digital Content Protection) — Suite Configuration
+# ===========================================================================
+# Used by: tests/hdcp/test_ec62443_hdcp_sut_wins_func.py
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# SUT-only variant — runs directly on the Windows SUT
+# The operator creates signal files in <repo>/logs/sut_state to advance gates
+# ---------------------------------------------------------------------------
+
+# Optional: keep the state + signal files on a USB drive instead of logs/sut_state.
+# usb_mount: "D:/"
+
+# Maximum seconds to wait at each manual gate before timing out.
+# 900 = 15 minutes per step. 0 = no gate timeout (pytest.ini `timeout` still caps the whole test).
+manual_gate_timeout_secs: 900
