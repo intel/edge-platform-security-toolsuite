@@ -7,6 +7,7 @@ serial cable or USB drive is needed.
 | I want to… | Go to |
 |---|---|
 | Know what I need first | [1. Before you start](#1-before-you-start) |
+| Know what cannot work | [Known limitations](#known-limitations) |
 | Set up a Linux SUT | [2. Install — Linux SUT](#2-install--linux-sut) |
 | Set up a Windows SUT | [3. Install — Windows SUT](#3-install--windows-sut) |
 | Change settings | [4. Configure](#4-configure) |
@@ -67,6 +68,14 @@ also the `PRE_TEST_CHECKLIST` in the test file.
 | `Downloads/` | where you drop the tool packages; `deploy_tools.py` picks them up |
 | `Tools/` | staged tools (git-ignored) |
 | `logs/` | all logs, reports and the reboot state (`logs/sut_state/`) |
+
+### Known limitations
+
+Platform or OS limits the tests cannot work around. Read before planning a run.
+
+| Test | Limitation | What to do |
+|---|---|---|
+| VT-d (Linux) | **S4 (hibernate) does not work on Canonical Ubuntu with UEFI Secure Boot enabled**, on any release: Canonical's kernel turns on kernel lockdown under Secure Boot, and lockdown disables hibernation ([askubuntu](https://askubuntu.com/questions/1106105/hibernate-with-uefi-and-secure-boot-enabled), [Phoronix](https://www.phoronix.com/news/Linux-Hibernation-With-Lockdown)). The Intel Ubuntu image (Intel kernel) is not affected. The test only logs a lockdown WARNING at Step 8.0, then the after-S4 VTInfo check fails | Canonical Ubuntu: disable Secure Boot for the VT-d test (fTPM/dTPM need it enabled, so run them in a separate batch), or use the Intel Ubuntu image |
 
 ---
 
@@ -622,7 +631,7 @@ Select-String "RESULT:" logs\test_run_*\test_execution.log                    # 
 | TXT Step 3.0 / 9.1: `TME is not active` (vPro only) | MSR 0x982 IA32_TME_ACTIVATE bit 1 is 0 | BIOS Setup → Intel Advanced Menu → CPU Configuration → Total Memory Encryption = Enabled |
 | VT-d Step 5.6: `No active swap partition or swap file` | S4 needs swap to hibernate to (zram is not used) | Re-run `sudo ./deploy/setup/setup_sut.sh` (step 9 prepares `/swap.img`), or set `swap_partition` in `config/suites/virtualization_config.yaml` |
 | VT-d Step 5.6: `Swap file ... smaller than ... /sys/power/image_size` | The swap file cannot hold the hibernation image (Ubuntu's installer makes an 8 GiB `/swap.img` at most) | Re-run `sudo ./deploy/setup/setup_sut.sh` (step 9 grows it to the RAM size; `HIBERNATE_SWAP_GB=<n>` overrides) |
-| VT-d Step 8.0 WARNING `Kernel lockdown ... may refuse S4`, then the after-S4 VTInfo check fails | UEFI Secure Boot is on; Ubuntu's kernel then refuses hibernation (the test only warns, it does not stop) | Disable Secure Boot in BIOS Setup for the VT-d test, re-run |
+| VT-d Step 8.0 WARNING `Kernel lockdown ... may refuse S4`, then the after-S4 VTInfo check fails | Canonical Ubuntu with Secure Boot on — see [Known limitations](#known-limitations) | BIOS Setup → Security → Secure Boot = Disabled, re-run; or use the Intel Ubuntu image |
 | VT-d: `sudo ... needs a password (no terminal)` (rtcwake, update-grub, filefrag) | The test was resumed after a reboot and the passwordless sudo rule is missing | Re-run `sudo ./deploy/setup/setup_sut.sh` (step 5 adds the rules) |
 | A test asks `[sudo] password`, or dTPM / fTPM / TXT fail after their reboot with `sudo: a password is required` | The SUT was set up without `--nopasswd-all` | `sudo ./deploy/setup/setup_sut.sh --add-nopasswd-all` (test boards only), or answer **Y** when `test_runner.py` offers it |
 | VT-d Step 5.6: `Kernel still lacks resume=... after the automatic GRUB reboot` | another file overrides `GRUB_CMDLINE_LINUX` (e.g. `/etc/default/grub.d/*.cfg`) or a different boot entry was used | Check `logs/test_run_*/grub_resume_check.log`, fix the override, re-run the test (the backup is `/etc/default/grub.fwval.bak`) |
