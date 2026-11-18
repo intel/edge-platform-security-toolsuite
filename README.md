@@ -161,6 +161,10 @@ python -m venv ..\venv; ..\venv\Scripts\python.exe -m pip install -r requirement
 ..\venv\Scripts\python.exe -m pytest --collect-only -q
 ```
 
+## Support
+
+If you have any questions, please submit them on the GitHub Issues page or contact your Intel representative for further support.
+
 ## Available Markers
 
 Registered in `pytest.ini` (`markers =`) -- the only marker registry; the test runner's
