@@ -1,0 +1,58 @@
+# =============================================================================
+#  REFERENCE TEMPLATE — DO NOT INSTALL THIS FILE DIRECTLY
+# =============================================================================
+#
+# This file documents the shape of the resume unit.  It is NOT deployable as-is:
+# the @PLACEHOLDER@ tokens below are not valid systemd values, so copying it to
+# /etc/systemd/system/ produces a unit that fails with status=203/EXEC on every
+# boot.  Because the failure happens before pytest starts, a reboot-driven test
+# simply never resumes — no error surfaces in the test log, and the SUT sits
+# idle at the desktop.
+#
+# Install it with the setup script instead, which generates the real unit with
+# every path auto-detected for the current user and checkout location:
+#
+#     sudo ./deploy/setup/setup_sut.sh
+#
+# Auto-detected at generation time (see deploy/setup/setup_sut.sh, Step 6):
+#     @USER@         $SUDO_USER, falling back to logname
+#     @PROJECT_ROOT@ resolved from the setup script's own location
+#     @PYTHON_BIN@   realpath of <project root>/../venv/bin/python3
+#
+# To inspect what is actually installed on a SUT:
+#     systemctl cat fw-validation-resume.service
+#
+# =============================================================================
+
+[Unit]
+Description=Firmware Validation Test Resume
+# Run after basic filesystems; the EFI partition is waited for inside
+# deploy/resume/fw_validation_resume.sh, not by a hard dependency here.
+After=network.target local-fs.target
+
+[Service]
+Type=oneshot
+User=@USER@
+WorkingDirectory=@PROJECT_ROOT@
+# The resume logic lives in deploy/resume/fw_validation_resume.sh — it waits up to 60 s
+# for state_done.txt to appear, then re-runs the queued node IDs from next_test.txt.
+# state_done.txt is in the state folder (<repo>/logs/sut_state) for OS-only reboots,
+# or on the EFI partition (/boot/efi) when written by the UEFI shell (FAT32).
+#
+# Do NOT inline this as a bash -c one-liner: systemd expands "${TESTS[@]}" in
+# ExecStart to an empty string (invalid env var name), which makes pytest run
+# with no node IDs and collect the entire suite instead of resuming.
+#
+# STATE_DIR must match `usb_mount` in the suite config only if that override is
+# set; by default both use <repo>/logs/sut_state.
+Environment=STATE_DIR=@PROJECT_ROOT@/logs/sut_state
+Environment=EFI_MOUNT=/boot/efi
+Environment=PYTHON_BIN=@PYTHON_BIN@
+ExecStart=@PROJECT_ROOT@/deploy/resume/fw_validation_resume.sh
+# Keep the result visible in journalctl
+StandardOutput=journal
+StandardError=journal
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

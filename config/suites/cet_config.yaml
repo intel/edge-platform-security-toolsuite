@@ -1,0 +1,41 @@
+# CET (Control-flow Enforcement Technology) suite config
+# Used by: tests/cet/test_ec62443_cet_sut_wins_func.py
+#          tests/cet/test_ec62443_cet_wins_func.py
+
+# ---------------------------------------------------------------------------
+# test_ec62443_cet_sut_wins_func.py -- Windows SUT-local, fully manual variant.
+# Verifies Kernel-mode Hardware-enforced Stack Protection (Windows Security)
+# and per-process protection via Task Manager -> Details for a sample process.
+# ---------------------------------------------------------------------------
+
+# Optional: keep the state + signal files on a USB drive instead of logs/sut_state.
+# usb_mount: "D:/"
+
+# Maximum seconds to wait at the manual gate before timing out.
+# 900 = 15 minutes. 0 = no gate timeout (pytest.ini `timeout` still caps the whole test).
+manual_gate_timeout_secs: 900
+
+# Sample process used to verify per-process Hardware-enforced Stack
+# Protection in Task Manager -> Details -> "Hardware-enforced Stack Protection".
+hsp_target_process: "msedge.exe"
+
+# ---------------------------------------------------------------------------
+# test_ec62443_cet_wins_func.py -- Windows SUT over SSH, automated via
+# runcetss.bat + shadowstack.exe.
+# ---------------------------------------------------------------------------
+
+# Full path to the folder on the SUT containing runcetss.bat and shadowstack.exe.
+# Example (Windows): C:\cet_tools
+cet_tool_dir: "C:/cet_tools"
+
+# NUC local folder containing runcetss.bat and shadowstack.exe.
+# The SSH-based CET test uploads these files from NUC -> SUT automatically.
+# Example (Windows host): C:\tools\cet_tools
+local_cet_tool_dir: ""
+
+# Optional explicit local file paths (override local_cet_tool_dir when both are set).
+# local_runcetss_path: "C:/tools/cet_tools/runcetss.bat"
+# local_shadowstack_path: "C:/tools/cet_tools/shadowstack.exe"
+
+# Expected message from runcetss.bat indicating CET ShadowStack was enabled.
+expected_cet_enable_msg: "Enabling CET (ShadowStack) for shadowstack.exe"

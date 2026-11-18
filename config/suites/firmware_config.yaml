@@ -1,0 +1,61 @@
+# ---------------------------------------------------------------------------
+# Firmware Update Test Configuration
+# Tests: test_ec62443_bios_fw_capsule_update_func.py (NUC)
+#        test_ec62443_bios_fw_capsule_update_sut_func.py (SUT)
+# ---------------------------------------------------------------------------
+
+# Capsule file name (must exist on EFI partition)
+capsule_file: "BIOS_release.cap"
+
+# CapsuleApp.efi tool name
+capsule_tool_efi: "CapsuleApp.efi"
+
+# Single shared directory for BOTH files on SUT Ubuntu:
+#   - CapsuleApp.efi
+#   - BIOS capsule (.cap)
+# Keep this path as the primary user-editable location.
+capsule_files_dir: "/boot/efi/EFI"
+
+# Backward-compatible alias used by test_ec62443_bios_fw_capsule_update_func.py
+# Keep equal to capsule_files_dir.
+sut_efi_dir: "/boot/efi/EFI"
+
+# EFI mount + UEFI subdir used by SUT-only capsule test
+sut_efi_mount: "/boot/efi"
+uefi_tool_dir: "EFI"
+
+# Auto-copy behavior for SUT-only capsule test
+# If enabled, test copies files from source paths into /boot/efi/EFI before verify
+auto_copy_to_efi: true
+# If true, overwrite existing files in EFI destination during auto-copy
+force_copy_to_efi: false
+
+# startup.nsh preflight for SUT-only capsule test
+# Auto-deploys startup.nsh to EFI if missing/invalid before reboot to UEFI shell
+auto_deploy_startup_nsh: true
+startup_nsh_source: "deploy/resume/startup.nsh"
+startup_nsh_target: "/boot/efi/startup.nsh"
+# If true, fail early unless efibootmgr has "FW-Validation Shell" boot entry
+require_fw_validation_shell: false
+
+# Source path options for auto-copy.
+# Default uses the same shared dir so both files are managed in one location.
+capsule_source_dir: "/boot/efi/EFI"
+# Optional per-file overrides (leave empty to use capsule_source_dir)
+capsule_file_source_path: ""
+capsule_tool_source_path: ""
+
+# UEFI shell sub-directory to cd into for capsule update (step 7.1)
+uefi_capsule_dir: "EFI"
+
+# EFI mount point on the SUT (SUT variant)
+sut_efi_mount: "/boot/efi"
+uefi_tool_dir: "EFI"
+
+# Capsule update timeout (seconds)
+update_timeout: 600
+
+# Max seconds to wait for SUT to come back online after capsule update
+post_update_os_timeout: 300
+
+

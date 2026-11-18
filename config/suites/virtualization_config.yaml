@@ -1,0 +1,90 @@
+# ---------------------------------------------------------------------------
+# Virtualization (VT-d) Test Configuration
+# IEC62443-4-2-TC_Virtualization_Vtd-FUNC
+# IEC62443-4-2-TC_Virtualization_Vtd_002-FUNC
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Tools — local (NUC) source path
+# ---------------------------------------------------------------------------
+# Full path to VTInfo.efi on this NUC.
+local_vtinfo_efi: "C:/tools/virtualization/VTInfo.efi"
+
+# ---------------------------------------------------------------------------
+# UEFI shell directory
+# ---------------------------------------------------------------------------
+# Defaults from test_config.yaml:  uefi.tool_dir = "EFI",  uefi.efi_mount = "/boot/efi"
+# Override here only if your SUT uses a non-standard EFI layout:
+# uefi_tool_dir: "EFI"
+# sut_efi_mount: "/boot/efi"
+
+# ---------------------------------------------------------------------------
+# Output verification keywords
+# ---------------------------------------------------------------------------
+# VTInfo.efi PASS keyword — must appear at least once in the output.
+pass_keyword: "PASS"
+
+# VTInfo.efi FAIL keyword — must NOT appear in the output.
+fail_keyword: "FAIL"
+
+# VTInfo.efi WARNING keyword — must NOT appear in the output.
+warning_keyword: "WARNING"
+
+# ---------------------------------------------------------------------------
+# Timing
+# ---------------------------------------------------------------------------
+# Seconds to wait for the UEFI shell to be ready after a reboot.
+boot_timeout: 180
+
+# Seconds to wait for Ubuntu SSH to come back after wake-up.
+# S3 wakes quickly (~60 s); S4 needs more; S5 needs full POST + OS boot.
+ssh_post_s3_timeout: 120
+ssh_post_s4_timeout: 240
+ssh_post_s5_timeout: 300
+
+# ---------------------------------------------------------------------------
+# VT-d 002 — BIOS policy check (IEC62443-4-2-TC_Virtualization_Vtd_002-FUNC)
+# ---------------------------------------------------------------------------
+# Expected VT-d state (greyed-out in BIOS — policy enforced by firmware).
+expected_vtd_state: "Enabled"
+
+# BIOS entry key: read from test_config.yaml firmware.boot_menu_key (default F2).
+# Override here only if this suite needs a different key:
+# bios_entry_key: "F2"
+
+# VT-d sub-options that must NOT be present in the VT-d setup menu page.
+absent_vtd_options:
+  - "IGD VTD"
+  - "IPU VTD"
+  - "IOP VTD"
+  - "ITBT VTD"
+
+# ---------------------------------------------------------------------------
+# SUT variant  [test_ec62443_virtualization_vtd_sut_func.py]
+# ---------------------------------------------------------------------------
+# Filename of VTInfo.efi already copied to the SUT EFI partition.
+# Pre-stage with:
+#   sudo cp VTInfo.efi /boot/efi/EFI/
+vtinfo_efi_name: "VTInfo.efi"
+
+# Seconds the RTC alarm waits before waking the SUT from each power state.
+s3_wake_secs: 120
+s4_wake_secs: 120
+s5_wake_secs: 120
+
+# S4 (hibernate) resume target. The test (Step 5.6, after the BIOS knob check) makes sure the kernel
+# boots with GRUB_CMDLINE_LINUX="resume=<swap_partition>": it edits
+# grub_default_file (backup: <file>.fwval.bak), runs `sudo update-grub`,
+# checks grub_cfg_file, then reboots automatically and resumes Phase 0.
+# Leave swap_partition empty to auto-detect the active swap partition
+# (swapon), e.g. /dev/nvme0n1p3; without one, the active swap file (e.g.
+# /swap.img) is used: resume=UUID=<its fs> resume_offset=<n>. The swap file
+# must be >= /sys/power/image_size: sudo ./deploy/setup/setup_sut.sh (step 9)
+# grows it to the RAM size. The passwordless sudo rules from setup_sut.sh
+# cover only the default grub_default_file / grub_cfg_file paths below.
+swap_partition: ""
+grub_default_file: "/etc/default/grub"
+grub_cfg_file: "/boot/grub/grub.cfg"
+
+# Seconds to wait at the BIOS manual gate (step 5.0).
+manual_gate_timeout_secs: 900

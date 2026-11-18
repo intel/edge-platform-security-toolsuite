@@ -1,0 +1,31 @@
+# ---------------------------------------------------------------------------
+# AES-NI (AES New Instructions) Test Configuration
+# Tests:
+#   tests/aesni/test_ec62443_aesni_sut_func.py            (Linux SUT-local)
+#   tests/aesni/test_ec62443_aesni_sut_wins_func.py       (Windows SUT-local)
+#   internal_nuc/tests/aesni/test_ec62443_aesni_func.py   (Linux, NUC/SSH)
+# ---------------------------------------------------------------------------
+
+# run_aesni_test.py is bundled in this repo (bios_scripts/) and used by all
+# AES-NI variants. The NUC/SSH variant uploads it to sut_aesni_dir on the SUT
+# over SSH; the SUT-local variants (Linux & Windows) run it in place from
+# bios_scripts/, so no extra copy is needed.
+
+# NUC/SSH variant -- repo-relative path uploaded to the SUT.
+thm_aesni_script: "bios_scripts/run_aesni_test.py"
+# Optional: SUT directory the NUC/SSH variant uploads the script to (default /home/user).
+# sut_aesni_dir: "/home/user"
+
+# Windows SUT-local variant — Coreinfo64.exe (AES-NI capability check). Absolute
+# path, or relative to the repo root; the default is where
+# deploy/tools/deploy_tools.py stages it (it downloads Coreinfo.zip automatically).
+coreinfo_exe_path: "Tools/Coreinfo64.exe"
+
+# Optional: OpenSSL bin folder, used only when openssl is not on PATH (e.g. a shell
+# opened before deploy/setup/setup_sut_windows.ps1 installed it). Default below is
+# where that script's pinned Win64 OpenSSL Light MSI installs.
+# openssl_bin_dir: "C:/Program Files/OpenSSL-Win64/bin"
+
+# Optional (Windows): full path to the python.exe that runs run_aesni_test.py.
+# Leave unset to default to sys.executable (the interpreter running the test).
+# win_python_path: "C:/path/to/python.exe"

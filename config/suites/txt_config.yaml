@@ -1,0 +1,59 @@
+# ---------------------------------------------------------------------------
+# TXT (Trusted Execution Technology) Test Configuration
+# IEC62443-4-2-TC_TXT-FUNC
+# ---------------------------------------------------------------------------
+# Only TXT-specific parameters live here.
+# Global SUT settings (IP, serial, credentials) stay in test_config.yaml.
+
+# ---------------------------------------------------------------------------
+# Silicon variant
+# ---------------------------------------------------------------------------
+# TME support is detected automatically (CPUID.07H:ECX[13], core/bios_knob_checks.tme_supported) --
+# no manual flag needed. On non-vPro silicon the MSR check below is informational only (it
+# reports "not supported" instead of failing the test).
+
+# MSR address for IA32_TME_CAPABILITY (read on every run; non-vPro silicon reports "not supported")
+msr_address: "0x981"
+
+# ---------------------------------------------------------------------------
+# UEFI Shell — getsec tool
+# ---------------------------------------------------------------------------
+# UEFI shell directory where getsec tool + SINIT binary live (relative to FS root)
+getsec_uefi_dir: "EFI"
+getsec_tool:     "getsec64.efi"
+sinit_binary:    "PTL_SINIT.bin"
+
+# ---------------------------------------------------------------------------
+# UEFI Shell — TPM provisioning
+# ---------------------------------------------------------------------------
+# UEFI shell path to the TPM provisioning directory
+tpm_prov_uefi_dir: "EFI\\TPM2ProvfilesCBnT"
+
+# NV indices the provisioning scripts create (nvIndex in AuxSha256.iDef / ExampleSgxSha256.iDef).
+# Not 0x1C00002 / 0x1C00100: those are the TPM vendor's EK certificate indices.
+aux_nv_index: "0x1C10102"
+sgx_nv_index: "0x1C10104"
+
+# ---------------------------------------------------------------------------
+# File transfer — local (NUC) source paths
+# ---------------------------------------------------------------------------
+# Windows paths on the NUC where the provisioning files are stored.
+# Update these to match the actual location on your NUC before running.
+local_getsec_tool:  "C:/tools/txt/getsec64_v2.0.71.efi"
+local_sinit_binary: "C:/tools/txt/PTL_SINIT_REL_NT_O1.PW_v1_21_18_20260113_ACM2SRC_signed.bin"
+# Directory containing ALL TPM provisioning files (.nsh, .efi, etc.)
+local_tpm_prov_dir: "C:/tools/txt/TPM2ProvfilesCBnT"
+
+# ---------------------------------------------------------------------------
+# SUT EFI partition
+# ---------------------------------------------------------------------------
+# Mount point of the EFI partition on SUT Ubuntu.
+# Default: uefi.efi_mount in test_config.yaml ("/boot/efi").
+# Override here only if your SUT uses a non-standard mount:
+# sut_efi_mount: "/boot/efi"
+
+# Step 4.1 manual gate (enable In-Band ECC in BIOS Setup): max seconds to wait for
+# step4_ibecc_enabled.txt in each boot. 0 = no gate timeout.
+manual_gate_timeout_secs: 900
+
+

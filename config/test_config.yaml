@@ -1,0 +1,132 @@
+# ===========================================================================
+# TEST FRAMEWORK — MAIN CONFIGURATION
+# ===========================================================================
+# This is the ONLY file you need to edit before running tests.
+#
+# QUICK SETUP CHECKLIST
+# ─────────────────────
+# 1. sut.ip_address        → IP of your Ubuntu SUT
+# 2. sut.username/password → SSH credentials on the SUT
+# 3. sut.serial_port       → COM port on this NUC connected to SUT serial
+#
+# 4. Tool paths (NUC-side):
+#    aesni_config.yaml: thm_aesni_script → run_aesni_test.py
+#    virtualization.local_vtinfo_efi
+#    txt_tools.*                   → getsec, SINIT, TPM provisioning files
+#    eom_tools.*                   → Fpt.efi, MEInfo.efi
+#
+# MEInfo tool paths (nuc_meinfo_path, sut_meinfo_dir, sut_meinfo_path_linux,
+# sut_meinfo_path_windows) live in config/suites/csme_config.yaml, not here —
+# see that file's header comment for which key each CSME/RPMC/Secure Debug
+# test variant reads.
+#
+# Suite-specific EXPECTED VALUES (what the test asserts) live in:
+#   config/suites/<suite>_config.yaml
+# You only need to edit those if the platform-specific expected values
+# (e.g. expected UPID OEM ID, TME MSR value) differ from the defaults.
+#
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# System Under Test (SUT)
+# ---------------------------------------------------------------------------
+sut:
+  hostname: ""
+  ip_address: ""
+  username: "local_admin"
+  password: ""
+
+  # OS running on the SUT.
+  # ubuntu | windows | auto (detect on first SSH use)
+  os_type: "auto"
+
+  # Serial console (NUC COM port connected to SUT)
+  serial_port: "COM13"
+  serial_baudrate: 115200
+
+  # IPMI (optional — for hardware power control)
+  ipmi_host: "192.168.1.101"
+  ipmi_user: "admin"
+  ipmi_password: ""
+
+# ---------------------------------------------------------------------------
+# TPM (shared across suites)
+# ---------------------------------------------------------------------------
+tpm:
+  tpm_module_path: "/usr/lib/modules"
+  tpm_device: "/dev/tpm0"
+
+# ---------------------------------------------------------------------------
+# BIOS Knobs (board-independent READ-ONLY checks)
+# ---------------------------------------------------------------------------
+# Used by core/bios_knobs_manager.py.
+# Add new entries here as data — no code changes needed.
+bios_knobs:
+  ftpm_ptt:        { knob: "PttState",          os_check: "ptt",          expected: "Enabled" }
+  tpm_location:    { knob: "TpmDeviceSelection", os_check: "tpm_location", expected: "PTT" }
+  pcr_bank_sha256: { knob: "TpmActivePcrBanks",  os_check: "pcr_bank",     expected: "SHA256" }
+
+# Safety guard for BIOS knob WRITES — false by default.
+bios_knobs_allow_writes: false
+
+# ---------------------------------------------------------------------------
+# BIOS knob read-back / verification (SUT-local tests + test_runner.py pre-flight)
+# ---------------------------------------------------------------------------
+bios:
+  # AMI AMISCE (deploy/bios_knobs/): auto = detect an AMI BIOS, yes / no = force.
+  amisce: auto
+  # BIOS Administrator password for the AMISCE import (/cpwd). AMISCE skips
+  # protected setup variables (e.g. CpuSetup: TME, VMX, TXT) without it, yet
+  # still exits 0 -- the knob check then fails with "expected Enabled, got Disabled".
+  # Leave this "": on a Linux SUT, test_runner.py asks for the password once
+  # (or offers to set one up in BIOS Setup) and stores it encrypted on the SUT
+  # (deploy/bios_knobs/bios_password.py) -- nothing to edit here.
+  # Optional override (e.g. Windows SUT, CI): quote it (YAML turns 0123 into 83);
+  # Linux: printable ASCII without " ^ % # (UEFI Shell). The environment variable
+  # BIOS_ADMIN_PASSWORD overrides this value. Never commit a real password.
+  admin_password: ""
+
+verification:
+  # A manual step nothing can check (no OS read-back, no AMISCE) passes on the
+  # operator's confirmation; the result lists those steps as "Confirmed by the
+  # operator". strict: true fails those tests instead (formal compliance runs).
+  strict: false
+
+# ---------------------------------------------------------------------------
+# Reboot
+# ---------------------------------------------------------------------------
+reboot:
+  # Power control method: ssh | ipmi | manual
+  power_control_method: "ssh"
+  reboot_wait_time: 60   # seconds before OS-ready check after reboot
+
+# ---------------------------------------------------------------------------
+# Boot menu (global default — suites can override in their own config)
+# ---------------------------------------------------------------------------
+firmware:
+  boot_menu_key: "F2"       # Key to enter UEFI boot menu at POST
+
+# ---------------------------------------------------------------------------
+# UEFI shell / EFI partition — platform-level defaults
+# ---------------------------------------------------------------------------
+# These values are the same on all Ubuntu SUT builds.
+# Suites that need to override (e.g. non-standard EFI mount) can add
+# sut_efi_mount / uefi_tool_dir keys in their own suite config file.
+uefi:
+  efi_mount: "/boot/efi"  # Linux mount point for the EFI partition
+  tool_dir: "EFI"         # UEFI shell sub-directory for test tools
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging:
+  level: "INFO"
+  console_logging: true
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+paths:
+  artifacts_dir: "logs"

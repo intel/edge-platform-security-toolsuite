@@ -1,0 +1,5 @@
+# HLAT (VT-rp / Hypervisor Linear Address Translation) suite config
+# Used by: tests/hlat/test_ec62443_hlat_sut_wins_func.py
+
+# Expected feature string to search for in systeminfo VBS report
+expected_vbs_feature: "Hypervisor-Enforced Paging Translation"

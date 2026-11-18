@@ -1,0 +1,36 @@
+# ---------------------------------------------------------------------------
+# SHA Extension Test Configuration
+# IEC62443-4-2-TC_SHA_Extension-FUNC
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# OpenSSL command
+# ---------------------------------------------------------------------------
+# Ubuntu (default):
+openssl_command: "openssl speed aes-256-cbc"
+
+# Windows (override if running from a Windows SUT):
+# openssl_command: "\"C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe\" speed aes-256-cbc"
+
+# ---------------------------------------------------------------------------
+# Verification
+# ---------------------------------------------------------------------------
+# The throughput-table line keyword that must appear in the output.
+# openssl prints a line like:
+#   aes-256-cbc    1110815.97k  ...  1523384.32k
+output_type_keyword: "aes-256-cbc"
+
+# CPUINFO line keyword — confirms openssl detected hardware capability flags.
+# If absent the benchmark still passes, but hardware acceleration may not be active.
+cpuinfo_keyword: "OPENSSL_ia32cap"
+
+# Minimum throughput (kB/s) for the 16-byte block size column.
+# Set to 0 to disable the throughput floor check.
+# The example output shows ~1 110 815 kB/s; a sane minimum is 200 000.
+min_throughput_kbps: 200000
+
+# ---------------------------------------------------------------------------
+# Timing
+# ---------------------------------------------------------------------------
+# Seconds to wait for openssl speed to finish (3 s per block size x 6 sizes + margin).
+command_timeout: 60

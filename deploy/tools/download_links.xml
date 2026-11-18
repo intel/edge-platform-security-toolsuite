@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Central place to update tool download links; edit ONLY this file when a link -->
+<!-- changes (new version, moved URL, etc). Referenced by name from tools.xml's -->
+<!-- <component> tags; kept separate so link updates never touch tool definitions. -->
+<downloads>
+    <component name="VTInfo">
+        <link description="VT Info Tool v1.1.83">https://cdrdv2.intel.com/v1/dl/getContent/640214/640215?filename=VtInfo_v1.1.83.zip</link>
+    </component>
+    <component name="CSMEKits">
+        <link description="Intel CSME Consumer kits 2026 WW01 (requires NDA access)">https://cdrdv2.intel.com/v1/dl/getContent/918226/918227?filename=Intel_Silicon_FW_Kit_PTL-H_2026WW07.4.01_ECG_CSME_SSE_26WW18.zip</link>
+    </component>
+    <component name="TXTProvKits">
+        <link description="TPM Provisioning kits 05282026">https://cdrdv2.intel.com/v1/dl/getContent/914993/830393?filename=Client_TXT_Debug_TPM_Prov_Kit_05282026.zip</link>
+    </component>
+    <component name="PTL_ACM">
+        <link description="PTL Startup ACM 1.21.18">https://cdrdv2.intel.com/v1/dl/getContent/914993/892533?filename=PTL_WCL_StartupACM_1.21.18_SINITACM_1.21.18.V3.zip</link>
+    </component>
+    <component name="BIOSCapsule">
+        <link description="BIOS Capsule (.cap) -- NOT downloadable; request from your Intel representative. Board-specific: only valid for the exact Intel board it was generated for.">Contact your Intel FAE/representative to request the BIOS capsule (.cap) file for this board, then drop it into Downloads/ (any filename is fine -- it is staged as BIOS_release.cap).</link>
+    </component>
+    <component name="CapsuleApp">
+        <link description="CapsuleApp.efi -- NOT downloadable; must be compiled from EDK2 source (tianocore).">Build CapsuleApp.efi from https://github.com/tianocore/edk2/tree/master/MdeModulePkg/Application/CapsuleApp, then drop the built CapsuleApp.efi into Downloads/.</link>
+    </component>
+    <component name="AMISCE_Linux">
+        <link description="AMI AMISCE for LINUX SUT -- AMI Aptio BIOS ONLY (press [S] to skip on any other BIOS). NOT downloadable; AMI NDA package, request it from AMI or your BIOS vendor.">Drop the whole SceEfi.7z package into Downloads/. </link>
+    </component>
+    <component name="Coreinfo">
+        <!-- Public Microsoft Sysinternals package; fetched automatically by deploy_tools.py -->
+        <!-- (auto_download="true") only while it matches the pinned sha256 (Coreinfo.zip of 2026-11-13). -->
+        <!-- The URL has no version: when Microsoft updates the file, download it by hand and update sha256. -->
+        <link description="Sysinternals Coreinfo (Coreinfo.zip, contains Coreinfo64.exe)" auto_download="true" sha256="da7d48956d66cfc2ac3766c30e7f46209cdc5824eb25b1bbd4cb10f124b2d7a4">https://download.sysinternals.com/files/Coreinfo.zip</link>
+    </component>
+    <component name="OpenSSL_Windows">
+        <!-- Pinned version, installed by deploy/setup/setup_sut_windows.ps1 (AES-NI test); not -->
+        <!-- staged by deploy_tools.py. To change the version, take the url and sha256 of the -->
+        <!-- Win64OpenSSL_Light-*.msi entry from https://slproweb.com/download/win32_openssl_hashes.json -->
+        <link description="Win64 OpenSSL Light 3.5.9 MSI (Shining Light Productions)" sha256="3f0a32f0f09078805e7470ccfe8d3f4f4f09e498416177d339bd10fc2a95331b">https://slproweb.com/download/Win64OpenSSL_Light-3_5_9.msi</link>
+    </component>
+    <component name="AMISCE_Windows">
+        <link description="AMI AMISCE for WINDOWS SUT -- AMI Aptio BIOS ONLY (press [S] to skip on any other BIOS). NOT downloadable; AMI NDA package, request it from AMI or your BIOS vendor.">Drop the whole SceWin.7z package into Downloads/. </link>
+    </component>
+</downloads>
